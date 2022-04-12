@@ -49,6 +49,11 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const fetchedData = await getData();
   const data = fetchedData.products.find((pl) => id === pl.id);
   console.log(data);
+  if (!data) {
+    return {
+      notFound: true,
+    };
+  }
   return {
     props: { product: data },
   };
