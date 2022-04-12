@@ -1,52 +1,60 @@
 import fs from "fs/promises";
-import path from "path"
-import styles from '../styles/Home.module.css'
-import { GetStaticPropsContext } from 'next'
-import React from 'react'
-import Link from "next/Link"
+import path from "path";
+import styles from "../styles/Home.module.css";
+import { GetStaticPropsContext } from "next";
+import React from "react";
+import Link from "next/link";
 
-interface Props{
-  products:[{
-    id:string;
-    title:string;
-  }];
+interface Props {
+  products: [
+    {
+      id: string;
+      title: string;
+    }
+  ];
 }
 interface ParseData {
-    products:object[]
+  products: object[];
 }
-const Home:React.FC<Props> = (props) => {
+const Home: React.FC<Props> = (props) => {
+  if (!props.products) {
+    return <h1>Loading...</h1>;
+  }
   return (
     <div className={styles.container}>
-      {props.products.map(el => <Link key={el.id} href={"#"}>{el.title}</Link>)}
+      {props.products.map((el) => (
+        <Link key={el.id} href={`/products/${el.id}`}>
+          {el.title}
+        </Link>
+      ))}
     </div>
-  )
-}
+  );
+};
 
-export const getStaticProps = async (context:GetStaticPropsContext) => {
-  console.log("Validating")
-  const filePath = path.join(process.cwd(), 'data', 'dummy-data.json')
+export const getStaticProps = async (context: GetStaticPropsContext) => {
+  console.log("Validating");
+  const filePath = path.join(process.cwd(), "data", "dummy-data.json");
   const jsonData = await fs.readFile(filePath);
-  const data : ParseData = JSON.parse(`${jsonData}`);
-  if(!data) {
+  const data: ParseData = JSON.parse(`${jsonData}`);
+  if (!data) {
     return {
-      redirect : {
-        destination :"/no"
-      }
-    }
+      redirect: {
+        destination: "/no",
+      },
+    };
   }
-  if(data.products.length === 0) {
+  if (data.products.length === 0) {
     return {
-      notFound:true
-    }
+      notFound: true,
+    };
   }
 
-return {
-  props:  {
-    "products": data.products
-  },
-  revalidate:10,
-  
-}
-}
+  return {
+    props: {
+      products: data.products,
+    },
+    revalidate: 10,
+  };
+};
 
-export default Home
+export default Home;
